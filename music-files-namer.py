@@ -17,7 +17,7 @@ def parse_arguments():
 
 
 def get_new_name(source, dest, artist, date, album, track_number, title):
-    path = '{}/{}/{}_-_{}'.format(dest, artist, date, album)
+    path = os.path.join(dest, artist, '{}_-_{}'.format(date, album))
     _, extension = os.path.splitext(source)
     filename = '{:02d}-{}{}'.format(track_number, title, extension)
     dest_path = os.path.join(path, filename).replace(' ', '_')
