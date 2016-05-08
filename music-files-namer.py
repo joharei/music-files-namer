@@ -3,6 +3,7 @@ import fnmatch
 import os
 import shutil
 
+import errno
 from mutagen.flac import FLAC
 
 
@@ -16,9 +17,9 @@ def parse_arguments():
 
 
 def get_new_name(source, dest, artist, date, album, track_number, title):
-    path = '{}/{}/{} - {}'.format(dest, artist, date, album)
+    path = '{}/{}/{}_-_{}'.format(dest, artist, date, album)
     _, extension = os.path.splitext(source)
-    filename = '{:02d} - {}{}'.format(track_number, title, extension)
+    filename = '{:02d}-{}{}'.format(track_number, title, extension)
     dest_path = os.path.join(path, filename).replace(' ', '_')
     print('Copying ' + source)
     print('to ' + dest_path)
@@ -28,6 +29,14 @@ def get_new_name(source, dest, artist, date, album, track_number, title):
 
 def get_field(field):
     return field[0].replace('/', '-')
+
+
+def make_sure_path_exists(path):
+    try:
+        os.makedirs(path)
+    except OSError as exception:
+        if exception.errno != errno.EEXIST:
+            raise
 
 
 def extract_and_copy(source, dest, dry_run):
@@ -42,7 +51,7 @@ def extract_and_copy(source, dest, dry_run):
                                      int(get_field(file['tracknumber'])),
                                      get_field(file['title']))
             if not dry_run:
-                os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+                make_sure_path_exists(os.path.dirname(dest_path))
                 shutil.copy2(file_path, dest_path)
 
 
